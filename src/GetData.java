@@ -16,7 +16,7 @@ public class GetData {
 	    	Document doc = null;
 	    	//219700
 	    	//245701
-	    	for (int i = 219700; i <= 245701; i++) {
+	    	for (int i = 219700; i <= 245800; i++) {
 		    	List<Penalty> penalties = new ArrayList<>();
 		    	Match match = null;
 	    		try {
@@ -36,12 +36,13 @@ public class GetData {
 			    	if (canSave) {
 			    		Elements spans = doc.select(".goal .onlinerecord-text");
 				    	boolean save = false;
+				    	Penalty penalty = null;
 				    	for(Element element : spans) {
-					    	Penalty penalty = null;
 				    		if (save) {
-				    			match.setScore(element.text().substring(element.text().indexOf("(") + 1, element.text().indexOf(")")));
+				    			penalties.get(penalties.indexOf(penalty)).setScoreBefore(element.text().substring(element.text().indexOf("(") + 1, element.text().indexOf(")")));
 				    			save = false;
 				    		}
+					    	penalty = null;
 				    		if(element.text().contains("Trestné støílení družstva")) {
 				    			penalty = new Penalty(
 				    					element.parent().parent().parent().select(".onlinetime_goal span").text(),
@@ -57,6 +58,27 @@ public class GetData {
 				    		}
 				    		if (penalty != null)  {
 				    			save = true;
+					    		penalties.add(penalty);
+				    		}
+				    	}
+				    	
+				    	Elements penaltyShoots = doc.select(".penaltyshoots");
+				    	for (Element element : penaltyShoots) {
+					    	penalty = null;
+				    		if(element.text().contains("ale gól nevstøelil")) {
+				    			penalty = new Penalty(
+				    					"OVERTIME",
+				    					element.text().substring(element.text().indexOf("hráè") + 4, element.text().indexOf(" , ale gól")),
+				    					element.text().substring(element.text().indexOf("družstva") + 9, element.text().indexOf("hráè") - 1),
+				    					false);
+				    		} else if (element.text().contains("a vstøelil gól") || element.text().contains("a vstøelil rozhodující gól")) {
+				    			penalty = new Penalty(
+				    					"OVERTIME",
+				    					element.text().substring(element.text().indexOf("hráè") + 4, element.text().indexOf("a vstøelil")),
+				    					element.text().substring(element.text().indexOf("družstva") + 9, element.text().indexOf("hráè") - 1),
+				    					true);
+				    		}
+				    		if (penalty != null)  {
 					    		penalties.add(penalty);
 				    		}
 				    	}
@@ -110,7 +132,7 @@ public class GetData {
 			    	      sb1.append(',');
 			    	      sb1.append(penalty.getTeam());
 			    	      sb1.append(',');
-			    	      sb1.append(match.getScore());
+			    	      sb1.append(penalty.getScoreBefore());
 			    	      sb1.append('\n');
 		    	      }
 	  	    		}

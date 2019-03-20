@@ -2,6 +2,7 @@
 public class Penalty {
 	String time, player, team;
 	boolean isGoal;
+	String scoreBefore;
 
 	public Penalty(String time, String player, String team, boolean isGoal) {
 		this.time = time;
@@ -41,6 +42,15 @@ public class Penalty {
 	public void setGoal(boolean isGoal) {
 		this.isGoal = isGoal;
 	}
+
+	public String getScoreBefore() {
+		return scoreBefore;
+	}
+
+	public void setScoreBefore(String scoreBefore) {
+		this.scoreBefore = scoreBefore;
+	}
+	
 
 
 	
